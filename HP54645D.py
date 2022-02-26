@@ -1,6 +1,8 @@
 import string
 import serial
 import time
+import re
+from enum import Enum
 from serial.serialutil import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
 class Error(Exception):
@@ -45,7 +47,7 @@ class scope:
         scope.serialObject.close()
 
     def receive():
-        return scope.serialObject.read_until()
+        return str(scope.serialObject.read_until())
 
     class acquire:
         """
@@ -305,8 +307,12 @@ class scope:
                 return scope.receive()
 
         def setRange(channel: int, range: float):
+            attenuation = re.sub('\D', '', scope.analog.getProbeAttenuation())
             if(channel is not 1 and channel is not 2):
                 raise InputError(channel, "Channel must be either 1 or 2!")
+            
+            elif(range < (0.016 * attenuation)  or range > (40 * attenuation)):
+                pass
             else:
                 scope.send(":ANAL{channel}:RANG {range}")
         
@@ -434,11 +440,84 @@ class scope:
             if(mode not in {'MAIN', 'DEL', 'XY', 'ROLL'}):
                 raise InputError(mode, 'Must be "MAIN", "DEL", "XY" or "ROLL"!')
             else:
-                scope.send(':TIM:MOD {mode}')
                 #if(scope.system.getError()):
                 #@TODO: Add error checking here
-        
+                scope.send(':TIM:MOD {mode}')
+
         def getMode():
             scope.send(':TIM:MOD?')
             return scope.receive()
-                
+        
+        def setRange(channel: int, range: float):
+            if(range < 0.00000005 or range > 500 ):
+                pass
+            else:
+                scope.send(":TIM:RANG {range}")
+        
+        def getRange(channel:int):
+            scope.send(":TIM:RANG?")
+            return float(scope.receive())
+
+        def setReference(reference: str):
+            if(reference not in {'LEFT', 'CENT', 'RIGH'}):
+                raise InputError(reference, 'reference must be "LEFT", "CENT" or "RIGH"')
+            else:
+                scope.send(':TIM:REF {reference}')
+                return scope.receive()
+        
+        def getReference():
+            scope.send(':TIM:REF?')
+            return scope.receive()
+    
+
+    class trace:
+        
+        def clearTrace(trace: int):
+            if(trace < 1 or trace > 100):
+                raise InputError(trace, 'Trace number must be between 1 and 100, but was {trace}!')
+            else:
+                scope.send(':TRAC:CLEAR {trace}')
+        
+        def setTraceData():
+            #@TODO: Do this command!
+            pass
+
+        def getTraceData():
+            #@TODO: Do this command!
+            pass
+
+        def setTraceMode(trace: int, mode: str):
+            if(trace < 1 or trace > 100):
+                raise InputError(trace, 'Trace number must be between 1 and 100, but was {trace}!')
+            elif(mode not in {'ON', 'OFF'}):
+                raise InputError(mode, 'mode must be "ON" or "OFF", but was {mode}!')
+            else:
+                scope.send(':TRAC:MODE {trace} {mode}')
+        
+        def getTraceMode(trace: int):
+            if(trace < 1 or trace > 100):
+                raise InputError(trace, 'Trace number must be between 1 and 100, but was {trace}!')
+            else:
+                scope.send(':TRAC:MODE? {trace}')
+                return scope.receive()
+        
+        def saveToTrace(trace: int):
+            if(trace < 1 or trace > 100):
+                raise InputError(trace, 'trace must be between 1 and 100, but was {trace}!')
+            else:
+                scope.send(':TRAC:SAVE {trace}')
+        
+    
+    class trigger:
+
+        def setCoupling(coupling: str):
+            if(coupling not in {'AC', 'DC'}):
+                raise InputError(coupling, 'coupling must be "AC" or "DC", but was {coupling}!')
+            else:
+                scope.send(':TRIG:COUP {coupling}')
+        
+        def getCoupling():
+            scope.send(':TRIG:COUP?')
+            return scope.receive()
+        
+        
