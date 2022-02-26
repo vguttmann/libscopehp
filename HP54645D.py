@@ -5,9 +5,11 @@ import re
 from enum import Enum
 from serial.serialutil import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
+
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
+
 
 class InputError(Error):
     """Exception raised for errors in the input.
@@ -24,7 +26,9 @@ class InputError(Error):
         self.expression = expression
         self.message = message
 
+
 class scope:
+
     def __init__(self, port: str, model, baudrate: int) -> None:
         self.port = port
         self.model = model
@@ -48,6 +52,7 @@ class scope:
 
     def receive():
         return str(scope.serialObject.read_until())
+
 
     class acquire:
         """
@@ -195,6 +200,7 @@ class scope:
             else:
                 scope.send(":ACQ:TYPE {type}\n")
 
+
     class analog:
         
         def setBWLimit(channel: int, limit: str):
@@ -322,7 +328,8 @@ class scope:
             else:
                 scope.send(":ANAL{channel}:RANG?")
                 return float(scope.receive())
-        
+
+
     class calibrate:
 
         def setCalibrationLabel(label: str):
@@ -341,12 +348,15 @@ class scope:
         def getCalibrationSwitchState():
             scope.send(":CAL:SWIT?")
             return scope.receive()
-    
+
+
     class channel:
-        pass
         # @TODO: Add channel commands and understand their meaning!
+        pass
+
 
     class system:
+      # @TODO: Add channel commands and understand their meaning!
         def getError():
             """
             Returns error codes from the onboard error memory
@@ -360,7 +370,7 @@ class scope:
             """
             scope.send(':SYS:ERR?')
             return scope.receive()
-        # @TODO: Add channel commands and understand their meaning!
+  
 
     class test:
         """
@@ -389,6 +399,7 @@ class scope:
             """
             scope.send(":TEST:ALL?")
             return scope.receive()
+
 
     class timebase:
 
@@ -519,5 +530,3 @@ class scope:
         def getCoupling():
             scope.send(':TRIG:COUP?')
             return scope.receive()
-        
-        
