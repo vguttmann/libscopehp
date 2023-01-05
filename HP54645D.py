@@ -1,8 +1,9 @@
-import string
-import serial
-import time
 import re
+import string
+import time
 from enum import Enum
+
+import serial
 from serial.serialutil import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 
 
@@ -432,7 +433,7 @@ class scope:
                 `None`: This function doesn't raise any errors.
             """
             scope.send(":TIM:DEL?")
-            return int(scope.receive())
+            return float(scope.receive())
 
         def setMode(mode: str):
             """
@@ -444,6 +445,7 @@ class scope:
                 `mode(str)`: [MAIN, DEL, XY, ROLL]
 
             Returns:
+                `None`: This function doesn't return anything
 
             Raises:
                 `InputError`: _description_
@@ -522,11 +524,64 @@ class scope:
     class trigger:
 
         def setCoupling(coupling: str):
+            """
+            Sets the current coupling
+
+            Arguments:
+                `coupling(str)`: [AC, DC]
+
+            Returns:
+                `None`: This function doesn't return anything
+
+            Raises:
+                `InputError`: In case `coupling` is invalid, an `InputError` will be raised
+            """
             if(coupling not in {'AC', 'DC'}):
                 raise InputError(coupling, 'coupling must be "AC" or "DC", but was {coupling}!')
             else:
                 scope.send(':TRIG:COUP {coupling}')
         
         def getCoupling():
+            """
+            Gets the current coupling
+
+            Arguments:
+                `None`: This function doesn't take any arguments
+
+            Returns:
+                `coupling(str)`: [AC, DC]
+
+            Raises:
+                `None`: This function doesn't raise any errors
+            """
             scope.send(':TRIG:COUP?')
             return scope.receive()
+
+        def setHoldoff(holdoff: float):
+            """
+            Sets the trigger holdoff time
+
+            Arguments:
+                `holdoff(float)`: _description_
+
+            Returns:
+                `None`: This function doesn't return anything
+
+            Raises:
+                `None`: This function doesn't raise any errors.
+            """
+            scope.send(":TRIG:HOLD {holdoff}")
+
+        def getHoldoff():
+            """
+            Gets the trigger holdoff time
+
+        Arguments:
+            `None`: This function doesn't take any arguments
+
+        Returns:
+            `None`: This function doesn't return anything
+
+        Raises:
+            `float`: The trigger holdoff time
+            """
