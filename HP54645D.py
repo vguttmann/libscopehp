@@ -96,7 +96,7 @@ class scope:
             if(criteria < 0 or criteria > 100):
                 raise InputError(criteria, 'Must be an int between 0 and 100.')
             else:
-                scope.send(":ACQ:COM {criteria}\n")
+                scope.send(":ACQ:COMP {criteria}\n")
 
         def getCompletionCriteria():
             """
@@ -111,7 +111,7 @@ class scope:
                 `int`: Integer from 0 to 100 that describes how full acquisition memory needs to be to complete one acquisition.
             """
 
-            scope.send(":ACQ:COM?")
+            scope.send(":ACQ:COMP?")
             return int(scope.receive())
         
         def setCount(count: int):
@@ -164,7 +164,7 @@ class scope:
                 raise InputError(dither, 'Must be either "ON" to turn dithering on, or "OFF" to turn dithering off!')
             scope.send(":ACQ:DITH {dither}\n")
 
-        def setDither():
+        def getDither():
             """
             Checks whether dithering is dis- or enabled.
 
@@ -399,7 +399,7 @@ class scope:
                 `None`: This function doesn't raise any errors.
             """
             scope.send(":TEST:ALL?")
-            return scope.receive()
+            return int(scope.receive())
 
 
     class timebase:
